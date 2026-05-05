@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="version" content="2026-05-04-v1">
+<title>[v2] Acompanhamento de Obra — Acesso do Cliente</title>
+<script>console.log('%c✅ index.html v2 — atualizado em 05/05/2026','background:#1A8A55;color:#fff;padding:6px 12px;border-radius:4px;font-size:14px;font-weight:bold');</script>
+<meta name="description" content="Acompanhe sua obra em tempo real. Digite o código fornecido pela construtora e veja cronograma e progresso na hora.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1C3D5A;--navy-dark:#122738;--navy-deeper:#0A1A26;--navy-light:#2A5580;
+  --teal:#1A7A9A;--teal-light:#D6EEF6;--teal-bright:#22A0C4;
+  --green:#1A8A55;--green-bg:#E8F5EE;--green-bright:#34D399;
+  --red:#C0392B;--red-bg:#FDECEA;
+  --amber:#D97706;--amber-bg:#FEF3C7;
+  --border:#D0DDE8;--bg:#EDF2F7;--white:#FFFFFF;
+  --text:#1A2D3D;--muted:#6B8296;--gray-bg:#F4F7FA;
+}
+html,body{overflow-x:hidden;height:100%}
+body{
+  font-family:'Poppins',system-ui,sans-serif;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(1200px 600px at 80% -10%,rgba(34,160,196,.18),transparent 60%),
+    radial-gradient(900px 500px at -10% 100%,rgba(26,122,154,.22),transparent 55%),
+    linear-gradient(180deg,var(--navy-deeper) 0%,var(--navy-dark) 60%,var(--navy) 100%);
+  min-height:100vh;
+  position:relative;
+}
+
+/* Padrão sutil de "obra" no background */
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;
+  z-index:0;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.92)}}
+
+/* ═══════════ LOGO Plan&jar ═══════════ */
+.logo-text{
+  font-family:'Poppins',sans-serif;
+  font-weight:700;
+  letter-spacing:-.5px;
+  line-height:1;
+  display:inline-flex;
+  align-items:baseline;
+}
+.logo-text .lamp{
+  font-weight:600;
+  margin:0 -.05em;
+  transform:translateY(-.06em);
+  font-size:.9em;
+  opacity:.92;
+}
+
+/* ═══════════════════════ TOPBAR ═══════════════════════ */
+.topbar{
+  position:relative;z-index:10;
+  padding:22px 32px;
+  display:flex;align-items:center;gap:16px;
+  animation:fadeIn .6s ease;
+}
+.topbar-brand{
+  display:flex;align-items:center;gap:12px;
+  text-decoration:none;color:#fff;
+}
+.topbar-logo{
+  width:42px;height:42px;border-radius:9px;
+  background:linear-gradient(135deg,var(--teal),var(--navy-light));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.topbar-brand-name{font-size:18px;color:#fff;line-height:1}
+.topbar-brand-tag{
+  font-size:9px;color:rgba(255,255,255,.5);
+  letter-spacing:1.6px;text-transform:uppercase;
+  margin-top:4px;font-weight:500;
+}
+.topbar-spacer{flex:1}
+
+.topbar-empresa{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;letter-spacing:.4px;
+  color:rgba(255,255,255,.85);text-decoration:none;
+  padding:9px 16px;border-radius:8px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);
+  transition:all .2s;
+  backdrop-filter:blur(8px);
+}
+.topbar-empresa:hover{
+  background:rgba(255,255,255,.13);
+  border-color:rgba(255,255,255,.25);
+  color:#fff;
+  transform:translateY(-1px);
+}
+.topbar-empresa svg{opacity:.85}
+
+/* ═══════════════════════ MAIN ═══════════════════════ */
+.main{
+  position:relative;z-index:5;
+  min-height:calc(100vh - 86px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px 24px 60px;
+}
+.stage{
+  width:100%;max-width:480px;
+  animation:fadeUp .8s ease both;
+}
+
+/* Saudação topo */
+.welcome{
+  text-align:center;
+  margin-bottom:28px;
+  color:#fff;
+}
+.welcome-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:600;letter-spacing:1.8px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.65);
+  margin-bottom:14px;
+}
+.welcome-eyebrow .pulse-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green-bright);
+  box-shadow:0 0 0 0 rgba(52,211,153,.6);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+.welcome-title{
+  font-size:30px;font-weight:700;
+  letter-spacing:-.5px;line-height:1.18;
+  margin-bottom:10px;
+}
+.welcome-title .accent{
+  background:linear-gradient(135deg,var(--teal-bright),#69F0AE);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.welcome-sub{
+  font-size:14px;color:rgba(255,255,255,.7);
+  line-height:1.55;max-width:380px;margin:0 auto;
+}
+
+/* Card principal */
+.card{
+  background:#fff;border-radius:18px;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.45),
+    0 6px 20px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.6);
+  overflow:hidden;
+}
+.card-top{
+  background:linear-gradient(180deg,var(--navy-dark),var(--navy));
+  padding:22px 28px;
+  display:flex;align-items:center;gap:14px;
+  position:relative;
+}
+.card-top::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+}
+.card-top-icon{
+  width:46px;height:46px;border-radius:10px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-bright));
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  flex-shrink:0;
+  box-shadow:0 4px 14px rgba(26,122,154,.4),inset 0 1px 0 rgba(255,255,255,.25);
+  animation:float 4s ease-in-out infinite;
+}
+.card-top-text{flex:1;min-width:0}
+.card-top-title{font-size:14px;font-weight:600;color:#fff;letter-spacing:.3px}
+.card-top-sub{
+  font-size:10.5px;color:rgba(255,255,255,.6);
+  margin-top:3px;letter-spacing:1px;text-transform:uppercase;font-weight:500;
+}
+
+.card-body{padding:32px 28px 28px}
+
+.field-lbl{
+  display:block;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;
+  font-weight:600;color:var(--muted);margin-bottom:10px;
+}
+.input{
+  width:100%;padding:16px 18px;
+  font-size:18px;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;text-align:center;
+  font-family:inherit;color:var(--text);
+  border:2px solid var(--border);border-radius:10px;
+  background:#FAFCFE;transition:all .2s;outline:none;
+}
+.input::placeholder{
+  letter-spacing:2px;color:#B6C4D2;font-weight:500;
+}
+.input:focus{
+  border-color:var(--teal);background:#fff;
+  box-shadow:0 0 0 4px rgba(26,122,154,.14);
+}
+.input.error{border-color:var(--red);background:var(--red-bg);animation:shake .35s ease}
+
+.hint{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.45;text-align:center}
+.hint.err{color:var(--red);font-weight:500}
+
+.btn{
+  width:100%;margin-top:18px;padding:15px;
+  font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  color:#fff;background:linear-gradient(135deg,var(--teal),var(--navy-light));
+  border:none;border-radius:10px;cursor:pointer;
+  font-family:inherit;transition:all .2s;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 18px rgba(26,122,154,.35);
+}
+.btn:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px rgba(26,122,154,.45);
+}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn .spin{
+  width:14px;height:14px;
+  border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+
+/* Pequenos selos abaixo do botão */
+.tags{
+  display:flex;justify-content:center;gap:18px;flex-wrap:wrap;
+  margin-top:22px;padding-top:20px;
+  border-top:1px solid var(--border);
+}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--muted);font-weight:500;
+}
+.tag svg{color:var(--green);flex-shrink:0}
+
+/* Ajuda extra abaixo do card */
+.helper{
+  text-align:center;
+  margin-top:24px;
+  font-size:12px;color:rgba(255,255,255,.55);
+  line-height:1.55;
+}
+.helper a{color:rgba(255,255,255,.85);text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.4)}
+.helper a:hover{color:#fff;border-color:#fff}
+
+/* ═══════════════════════ FOOTER ═══════════════════════ */
+.footer{
+  position:relative;z-index:5;
+  padding:18px 24px;
+  text-align:center;
+  font-size:11px;color:rgba(255,255,255,.4);
+}
+.footer .logo-text{font-size:12px;color:rgba(255,255,255,.6)}
+
+/* ═══════════════════════ STATUS BAR ═══════════════════════ */
+.status-bar{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:rgba(18,39,56,.95);backdrop-filter:blur(10px);
+  color:#fff;font-size:12px;font-weight:500;
+  padding:10px 18px;border-radius:24px;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 6px 24px rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.1);
+  opacity:0;transition:all .3s;z-index:200;
+  pointer-events:none;
+}
+.status-bar.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.status-bar.error{background:var(--red)}
+.status-bar .dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright);animation:pulse 1.5s ease-in-out infinite}
+.status-bar.error .dot{background:#fff}
+
+/* ═══════════════════════ RESPONSIVO ═══════════════════════ */
+@media (max-width:540px){
+  .topbar{padding:16px 18px;gap:10px}
+  .topbar-brand-tag{display:none}
+  .topbar-empresa{padding:8px 12px;font-size:11px}
+  .topbar-empresa .lbl-full{display:none}
+  .welcome-title{font-size:24px}
+  .welcome-sub{font-size:13px}
+  .card-body{padding:26px 22px 22px}
+  .input{font-size:16px;padding:14px 16px}
+  .tags{gap:12px}
+}
+@media (max-width:380px){
+  .topbar-brand-name{font-size:16px}
+  .welcome-eyebrow{font-size:10px;letter-spacing:1.4px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ TOPBAR ═══════════════════ -->
+<header class="topbar">
+  <div class="topbar-spacer"></div>
+  <a href="empresa.html" class="topbar-empresa" title="Acesso para construtoras">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 21h18"/>
+      <path d="M5 21V7l8-4v18"/>
+      <path d="M19 21V11l-6-4"/>
+      <path d="M9 9v.01"/>
+      <path d="M9 12v.01"/>
+      <path d="M9 15v.01"/>
+      <path d="M9 18v.01"/>
+    </svg>
+    <span class="lbl-full">Acesso&nbsp;</span>Empresa
+  </a>
+</header>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main">
+  <div class="stage">
+
+    <div class="welcome">
+      <div class="welcome-eyebrow">
+        <span class="pulse-dot"></span>
+        Área do cliente
+      </div>
+      <h1 class="welcome-title">
+        Acompanhe sua obra<br>
+        <span class="accent">em tempo real.</span>
+      </h1>
+      <p class="welcome-sub">
+        Digite o código que você recebeu da construtora pra ver cronograma, etapas e progresso atualizados.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="card-top-text">
+          <div class="card-top-title">Acesso do cliente</div>
+          <div class="card-top-sub">Código exclusivo da sua obra</div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <label class="field-lbl" for="code">Código de acesso</label>
+        <input id="code" class="input" type="text" placeholder="OBRA-001" maxlength="20" autocomplete="off" spellcheck="false" autofocus>
+        <div id="hint" class="hint">Não tem o código? Solicite à sua construtora.</div>
+
+        <button id="enter-btn" class="btn">
+          <span id="enter-label">Entrar na obra</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+
+        <div class="tags">
+          <div class="tag">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Sem cadastro
+          </div>
+          <div class="tag">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Sem instalar app
+          </div>
+          <div class="tag">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Acesso imediato
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="helper">
+      É uma construtora? <a href="empresa.html">Acesse o painel da empresa</a>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer class="footer">
+  © 2026 · Acompanhamento de obra
+</footer>
+
+<div id="status-bar" class="status-bar"><span class="dot"></span><span id="status-text">Conectando…</span></div>
+
+<!-- ═══════════════════ FIREBASE ═══════════════════ -->
+<script type="module">
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBJoDou1VsHAIAbVjESOGVh23dezmLETrE",
+  authDomain: "franco-e-fragoso-advocacia.firebaseapp.com",
+  databaseURL: "https://franco-e-fragoso-advocacia-default-rtdb.firebaseio.com",
+  projectId: "franco-e-fragoso-advocacia",
+  storageBucket: "franco-e-fragoso-advocacia.firebasestorage.app",
+  messagingSenderId: "1096895063248",
+  appId: "1:1096895063248:web:68a5c866e229124f3faad5"
+};
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getDatabase(app);
+
+window.__TAILORED__ = { db, ref, get };
+window.dispatchEvent(new CustomEvent('fb-ready'));
+</script>
+
+<script>
+/* ─── ACESSO ─── */
+const codeInput = document.getElementById('code');
+const btn = document.getElementById('enter-btn');
+const btnLabel = document.getElementById('enter-label');
+const hint = document.getElementById('hint');
+const statusBar = document.getElementById('status-bar');
+const statusText = document.getElementById('status-text');
+
+function setStatus(text, kind) {
+  statusText.textContent = text;
+  statusBar.className = 'status-bar show' + (kind ? ' ' + kind : '');
+  clearTimeout(setStatus._t);
+  setStatus._t = setTimeout(() => statusBar.classList.remove('show'), 2400);
+}
+
+function setHint(text, err) {
+  hint.textContent = text;
+  hint.className = 'hint' + (err ? ' err' : '');
+}
+
+function setLoading(loading) {
+  btn.disabled = loading;
+  if (loading) {
+    btnLabel.innerHTML = '<span class="spin"></span>&nbsp;Verificando…';
+  } else {
+    btnLabel.textContent = 'Entrar na obra';
+  }
+}
+
+function normalize(raw) {
+  return (raw || '').trim().toUpperCase().replace(/\s+/g,'');
+}
+
+codeInput.addEventListener('input', (e) => {
+  const pos = e.target.selectionStart;
+  e.target.value = e.target.value.toUpperCase();
+  e.target.setSelectionRange(pos, pos);
+  e.target.classList.remove('error');
+});
+
+codeInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); onEnter(); }
+});
+
+btn.addEventListener('click', onEnter);
+
+async function onEnter() {
+  const code = normalize(codeInput.value);
+  if (!code) {
+    codeInput.classList.add('error');
+    setHint('Digite um código para continuar', true);
+    codeInput.focus();
+    return;
+  }
+  if (!window.__TAILORED__) {
+    setHint('Conectando ao servidor, tente novamente em instantes…', true);
+    return;
+  }
+
+  setLoading(true);
+  setHint('Verificando código…', false);
+
+  try {
+    const { db, ref, get } = window.__TAILORED__;
+    const snap = await get(ref(db, 'codes/' + code));
+    const data = snap.val();
+    if (!data || !data.obraId || data.ativo === false) {
+      codeInput.classList.add('error');
+      setHint('Código não encontrado ou desativado. Verifique com a construtora.', true);
+      setLoading(false);
+      return;
+    }
+    setStatus('Acesso liberado', '');
+    try { sessionStorage.setItem('planjar_last_code', code); } catch(e){}
+    window.location.href = `obra.html?id=${encodeURIComponent(data.obraId)}&code=${encodeURIComponent(code)}`;
+  } catch (err) {
+    console.error(err);
+    setHint('Erro de conexão. Tente novamente.', true);
+    setStatus('Sem conexão', 'error');
+    setLoading(false);
+  }
+}
+
+/* Pré-preenche se veio com ?code= na URL */
+const urlCode = new URLSearchParams(window.location.search).get('code');
+if (urlCode) {
+  codeInput.value = urlCode.toUpperCase();
+  setTimeout(onEnter, 400);
+}
+
+window.addEventListener('fb-ready', () => {
+  setStatus('Conectado', '');
+});
+</script>
+
+</body>
+</html>
